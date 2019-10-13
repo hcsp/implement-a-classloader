@@ -1,11 +1,10 @@
 package com.github.hcsp.classloader;
 
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
@@ -30,30 +29,19 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        byte[] classData;
-        classData = getData(name);
+        byte[] classData = null;
+        String StringPath = bytecodeFileDirectory.toString() + File.separatorChar + name + ".class";
+        Path path = Paths.get(StringPath);
+        try {
+            classData = Files.readAllBytes(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if (classData == null) {
             throw new ClassNotFoundException(name);
         } else {
             return defineClass(name, classData, 0, classData.length);
         }
-    }
-
-    private byte[] getData(String name) {
-        String path = bytecodeFileDirectory.toString() + File.separatorChar + name + ".class";
-        try {
-            InputStream is = new FileInputStream(path);
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            byte[] buffer = new byte[2048];
-            int num;
-            while ((num = is.read(buffer)) != -1) {
-                stream.write(buffer, 0, num);
-            }
-            return stream.toByteArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public static void main(String[] args) throws Exception {
