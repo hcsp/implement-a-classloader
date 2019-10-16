@@ -38,9 +38,6 @@ public class MyClassLoader extends ClassLoader {
             clazz = defineClass(name, classData, 0, classData.length);
         }
         return clazz;
-//        String fileName = getFileName(name);
-//        File file = new File(fileName);
-
     }
 
     private byte[] getClassData(String name) {
