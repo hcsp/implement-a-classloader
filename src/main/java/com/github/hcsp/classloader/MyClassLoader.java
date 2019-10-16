@@ -62,7 +62,7 @@ public class MyClassLoader extends ClassLoader {
     }
 
     private String getClassFilePath(String name) {
-        return bytecodeFileDirectory.getPath() + '\\' + name + ".class";
+        return bytecodeFileDirectory.getPath() + File.separatorChar + name + ".class";
     }
 
     public static void main(String[] args) throws Exception {
