@@ -1,10 +1,6 @@
 package com.github.hcsp.classloader;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
@@ -13,7 +9,6 @@ public class MyClassLoader extends ClassLoader {
     public MyClassLoader(File bytecodeFileDirectory) {
         this.bytecodeFileDirectory = bytecodeFileDirectory;
     }
-
 
     // 还记得类加载器是做什么的么？
     // "从外部系统中，加载一个类的定义（即Class对象）"
@@ -30,40 +25,13 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        byte[] bytes = readClassNameToByteArray(name);
-        if (bytes == null) {
-            throw new ClassNotFoundException();
-        }
-        return defineClass(name, bytes, 0, bytes.length);
+        throw new ClassNotFoundException(name);
     }
 
-    private static byte[] readClassNameToByteArray(String className) throws ClassNotFoundException {
-        ByteArrayOutputStream result = new ByteArrayOutputStream();
-        String absoluteClassName = className + ".class";
-        int target;
-        byte[] bytes = new byte[1024];
-        try (FileInputStream inputStream = new FileInputStream(absoluteClassName)) {
-            while (-1 != (target = inputStream.read(bytes))) {
-                result.write(bytes, 0, target);
-            }
-        } catch (FileNotFoundException e) {
-            throw new ClassNotFoundException();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                result.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return result.toByteArray();
-    }
-
-    @SuppressWarnings("unchecked")
     public static void main(String[] args) throws Exception {
         File projectRoot = new File(System.getProperty("basedir", System.getProperty("user.dir")));
         MyClassLoader myClassLoader = new MyClassLoader(projectRoot);
+
         Class testClass = myClassLoader.loadClass("com.github.hcsp.MyTestClass");
         Object testClassInstance = testClass.getConstructor().newInstance();
         String message = (String) testClass.getMethod("sayHello").invoke(testClassInstance);
