@@ -1,15 +1,10 @@
 package com.github.hcsp.classloader;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
     private final File bytecodeFileDirectory;
-
-    private static final String CLASS_FILE_SUFFIX = ".class";
 
     public MyClassLoader(File bytecodeFileDirectory) {
         this.bytecodeFileDirectory = bytecodeFileDirectory;
@@ -30,14 +25,7 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        File file = new File(bytecodeFileDirectory, name + CLASS_FILE_SUFFIX);
-        try (InputStream inputStream = new FileInputStream(file)) {
-            byte[] bytes = new byte[inputStream.available()];
-            inputStream.read(bytes);
-            return defineClass(name, bytes, 0, bytes.length);
-        } catch (IOException e) {
-            throw new ClassNotFoundException(e.getMessage());
-        }
+        throw new ClassNotFoundException(name);
     }
 
     public static void main(String[] args) throws Exception {
