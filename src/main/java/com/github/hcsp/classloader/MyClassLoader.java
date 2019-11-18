@@ -1,6 +1,7 @@
 package com.github.hcsp.classloader;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,13 +33,8 @@ public class MyClassLoader extends ClassLoader {
         Map<String, File> files = getClassFilesFromDir(bytecodeFileDirectory);
         Map<String, Class> classes = new HashMap<>();
         files.forEach((className, file) -> {
-                    try (FileInputStream fis = new FileInputStream(files.get(className));
-                         ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                        int len;
-                        while ((len = fis.read()) != -1) {
-                            bos.write(len);
-                        }
-                        byte[] data = bos.toByteArray();
+                    try {
+                        byte[] data = Files.readAllBytes(file.toPath());
                         classes.put(className, (super.defineClass(className, data, 0, data.length)));
                     } catch (IOException e) {
                         e.printStackTrace();
