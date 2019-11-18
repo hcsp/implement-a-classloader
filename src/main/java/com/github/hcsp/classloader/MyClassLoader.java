@@ -1,6 +1,11 @@
 package com.github.hcsp.classloader;
 
-import java.io.File;
+import java.io.*;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
@@ -25,7 +30,32 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        throw new ClassNotFoundException(name);
+        Map<String, File> files = getClassFilesFromDir(bytecodeFileDirectory);
+        Map<String, Class> classes = new HashMap<>();
+        files.forEach((className, file) -> {
+                    try {
+                        byte[] data = Files.readAllBytes(file.toPath());
+                        classes.put(className, (super.defineClass(className, data, 0, data.length)));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+        );
+        Class clazz = classes.get(name);
+        if (clazz == null) {
+            throw new ClassNotFoundException(name);
+        }
+        return clazz;
+    }
+
+    private Map<String, File> getClassFilesFromDir(File bytecodeFileDirectory) {
+        return Stream.of(bytecodeFileDirectory.listFiles())
+                .filter(file -> file.getName().endsWith(".class"))
+                .collect(Collectors.toMap(MyClassLoader::getFileName, file -> file));
+    }
+
+    private static String getFileName(File file) {
+        return file.getName().substring(0, file.getName().length() - 6);
     }
 
     public static void main(String[] args) throws Exception {
