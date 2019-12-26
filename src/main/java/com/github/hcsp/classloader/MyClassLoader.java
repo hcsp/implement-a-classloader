@@ -43,7 +43,7 @@ public class MyClassLoader extends ClassLoader {
 
     private byte[] loadClassData(String name) throws ClassNotFoundException {
         // load the class data from the connection
-        File file = new File(bytecodeFileDirectory.getPath() + "\\" + name + ".class");
+        File file = new File(bytecodeFileDirectory.getPath() + File.separator + name + ".class");
         try {
             return Files.readAllBytes(file.toPath());
         } catch (IOException e) {
