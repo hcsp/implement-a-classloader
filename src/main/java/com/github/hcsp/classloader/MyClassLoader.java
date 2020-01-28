@@ -28,16 +28,15 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        name = bytecodeFileDirectory.getPath() + "/" + name + ".class";
-        System.out.println(name);
-        try (FileInputStream fileInputStream = new FileInputStream(new File(name)); ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+        String filepath = bytecodeFileDirectory.getPath() + "/" + name + ".class";
+        try (FileInputStream fileInputStream = new FileInputStream(new File(filepath)); ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             int i = 0;
             while ((i = fileInputStream.read()) != -1) {
                 byteArrayOutputStream.write(i);
             }
             return defineClass(name, byteArrayOutputStream.toByteArray(), 0, byteArrayOutputStream.toByteArray().length);
         } catch (IOException e) {
-            throw new ClassNotFoundException();
+            throw new ClassNotFoundException("error", e);
         }
     }
 
