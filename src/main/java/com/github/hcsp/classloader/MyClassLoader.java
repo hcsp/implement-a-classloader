@@ -28,7 +28,7 @@ public class MyClassLoader extends ClassLoader {
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         byte[] b = loadClassData(name);
-        throw new ClassNotFoundException(name);
+        return defineClass(name, b, 0, b.length);
     }
 
     //该方法在ClassLoader类的Javadoc文档第154行
