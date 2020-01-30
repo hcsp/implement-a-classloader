@@ -10,7 +10,6 @@ public class MyClassLoader extends ClassLoader {
 
     public MyClassLoader(File bytecodeFileDirectory) {
         this.bytecodeFileDirectory = bytecodeFileDirectory;
-
     }
 
     // 还记得类加载器是做什么的么？
@@ -29,25 +28,16 @@ public class MyClassLoader extends ClassLoader {
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         byte[] bytesInClassFile;
-        File[] files = bytecodeFileDirectory.listFiles();
-        assert files != null;
-        for (File file : files) {
-            if (file.toString().contains(name)) {
-                bytesInClassFile = getBytesFromClassFile(file);
-                return defineClass(name, bytesInClassFile, 0, bytesInClassFile.length);
-            }
+        try {
+            bytesInClassFile = getBytesFromClassFile(new File(bytecodeFileDirectory, name + ".class"));
+        } catch (IOException e) {
+            throw new ClassNotFoundException(name);
         }
-        throw new ClassNotFoundException(name);
+        return defineClass(name, bytesInClassFile, 0, bytesInClassFile.length);
     }
 
-    private byte[] getBytesFromClassFile(File classFile) {
-        byte[] bytesInClassFile = new byte[0];
-        try {
-            bytesInClassFile = Files.readAllBytes(classFile.toPath());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return bytesInClassFile;
+    private byte[] getBytesFromClassFile(File classFile) throws IOException {
+        return Files.readAllBytes(classFile.toPath());
     }
 
     public static void main(String[] args) throws Exception {
