@@ -36,7 +36,8 @@ public class MyClassLoader extends ClassLoader {
             return Files.readAllBytes(new File(className + ".class").toPath());
         } catch (IOException e) {
             throw new ClassNotFoundException(className);
-        }    }
+        }
+    }
 
     public static void main(String[] args) throws Exception {
         File projectRoot = new File(System.getProperty("basedir", System.getProperty("user.dir")));
