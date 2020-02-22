@@ -1,6 +1,8 @@
 package com.github.hcsp.classloader;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
@@ -25,8 +27,18 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        throw new ClassNotFoundException(name);
+        byte[] b;
+        try {
+            b = Files.readAllBytes(new File(name + ".class").toPath());
+        } catch (IOException e) {
+            throw new ClassNotFoundException(name + ".class can not be found!");
+        }
+        return defineClass(name, b, 0, b.length);
     }
+    // 双亲委派加载模型由loadClass(String,boolean)方法实现，
+    // loadClass在父加载器无法加载类的时候，就会调用我们自定义的类加载器findClass来加载
+    // 我们需要在loadClass中实现将一个指定类名称转换为Class对象.使用defineClass方法可将一个字节数组转为Class对象
+
 
     public static void main(String[] args) throws Exception {
         File projectRoot = new File(System.getProperty("basedir", System.getProperty("user.dir")));
