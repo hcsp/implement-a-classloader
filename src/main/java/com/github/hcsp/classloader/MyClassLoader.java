@@ -1,13 +1,10 @@
 package com.github.hcsp.classloader;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
     private final File bytecodeFileDirectory;
-    private final String fileExtension = ".class";
 
     public MyClassLoader(File bytecodeFileDirectory) {
         this.bytecodeFileDirectory = bytecodeFileDirectory;
@@ -28,21 +25,7 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        byte[] data = null;
-        try {
-            data = loadClassData(name);
-        } catch (Exception e) {
-        // catch (ClassNotFoundException e)
-        // catch (ReflectiveOperationException e)
-        // above exceptions are not working, why??
-            throw new ClassNotFoundException(e.getMessage());
-        }
-
-        return this.defineClass(name, data, 0, data.length);
-    }
-
-    private byte[] loadClassData(String name) throws IOException {
-        return Files.readAllBytes(new File(name + fileExtension).toPath());
+        throw new ClassNotFoundException(name);
     }
 
     public static void main(String[] args) throws Exception {
