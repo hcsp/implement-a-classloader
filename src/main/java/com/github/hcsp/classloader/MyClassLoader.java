@@ -30,15 +30,11 @@ public class MyClassLoader extends ClassLoader {
         // 1.如果类名对应的字节码文件存在，则将它读取成为字节数组
         //   1.1 调用ClassLoader.defineClass()方法将字节数组转化为Class对象
         File file = new File(bytecodeFileDirectory.getAbsolutePath() + "\\" + name + ".class");
-        long fileSize = file.length();
-        if (fileSize > Integer.MAX_VALUE) {
-            try {
-                throw new IOException("file [" + file.getName() + "] too big...");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         try (FileInputStream fi = new FileInputStream(file)) {
+            long fileSize = file.length();
+            if (fileSize > Integer.MAX_VALUE) {
+                throw new IOException("file [" + file.getName() + "] too big...");
+            }
             byte[] buffer = new byte[(int) fileSize];
             int offset = 0;
             int numRead;
