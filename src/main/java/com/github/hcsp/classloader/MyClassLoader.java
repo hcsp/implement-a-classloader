@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
@@ -30,24 +31,19 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
+        byte[] classByte = readFileToByteArray(name);
+        return defineClass(name, classByte, 0, classByte.length);
+
+    }
+
+    private byte[] readFileToByteArray(String name) throws ClassNotFoundException {
         File target = new File(bytecodeFileDirectory, name + ".class");
-
-        try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(target));
-             ByteArrayOutputStream out = new ByteArrayOutputStream((int) target.length())) {
-
-            byte[] buffer = new byte[1024];
-            int read;
-            while ((read = in.read(buffer, 0, buffer.length)) > 0) {
-                out.write(buffer, 0, read);
-            }
-            byte[] classByte = out.toByteArray();
-            return defineClass(name, classByte, 0, classByte.length);
-        } catch (FileNotFoundException e) {
-            throw new ClassNotFoundException(name);
+        try {
+            byte[] bytes = Files.readAllBytes(target.toPath());
+            return bytes;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ClassNotFoundException();
         }
-
     }
 
     public static void main(String[] args) throws Exception {
