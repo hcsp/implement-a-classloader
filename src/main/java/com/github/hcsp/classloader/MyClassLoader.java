@@ -53,7 +53,6 @@ public class MyClassLoader extends ClassLoader {
             }
             return defineClass(name, buffer, 0, (int) fileSize);
         } catch (IOException e) {
-            e.printStackTrace();
             throw new ClassNotFoundException(name);
         }
     }
