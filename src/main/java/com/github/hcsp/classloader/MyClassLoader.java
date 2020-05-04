@@ -29,7 +29,7 @@ public class MyClassLoader extends ClassLoader {
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         // 1.如果类名对应的字节码文件存在，则将它读取成为字节数组
         //   1.1 调用ClassLoader.defineClass()方法将字节数组转化为Class对象
-        File file = new File(bytecodeFileDirectory.getAbsolutePath() + "\\" + name + ".class");
+        File file = new File(bytecodeFileDirectory, name + ".class");
         try (FileInputStream fi = new FileInputStream(file)) {
             long fileSize = file.length();
             if (fileSize > Integer.MAX_VALUE) {
