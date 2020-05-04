@@ -1,6 +1,8 @@
 package com.github.hcsp.classloader;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
@@ -25,11 +27,35 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        throw new ClassNotFoundException(name);
+        // 1.如果类名对应的字节码文件存在，则将它读取成为字节数组
+        //   1.1 调用ClassLoader.defineClass()方法将字节数组转化为Class对象
+        File file = new File(bytecodeFileDirectory, name + ".class");
+        try (FileInputStream fi = new FileInputStream(file)) {
+            long fileSize = file.length();
+            if (fileSize > Integer.MAX_VALUE) {
+                throw new IOException("file [" + file.getName() + "] too big...");
+            }
+            byte[] buffer = new byte[(int) fileSize];
+            int offset = 0;
+            int numRead;
+            while (offset < buffer.length
+                    && (numRead = fi.read(buffer, offset, buffer.length - offset)) >= 0) {
+                offset += numRead;
+            }
+            // 确保所有数据均被读取
+            if (offset != buffer.length) {
+                throw new IOException("Could not completely read file "
+                        + bytecodeFileDirectory.getName());
+            }
+            return defineClass(name, buffer, 0, (int) fileSize);
+        } catch (IOException e) {
+            throw new ClassNotFoundException(name);
+        }
     }
 
     public static void main(String[] args) throws Exception {
         File projectRoot = new File(System.getProperty("basedir", System.getProperty("user.dir")));
+        System.out.println(projectRoot.getName());
         MyClassLoader myClassLoader = new MyClassLoader(projectRoot);
 
         Class testClass = myClassLoader.loadClass("com.github.hcsp.MyTestClass");
