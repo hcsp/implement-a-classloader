@@ -1,6 +1,9 @@
 package com.github.hcsp.classloader;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
@@ -25,8 +28,51 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        throw new ClassNotFoundException(name);
+        Class log = null;
+        // 获取该class文件字节码数组
+        byte[] classData = getData(name);
+
+        if (classData != null) {
+            // 将class的字节码数组转换成Class类的实例
+            log = defineClass(name, classData, 0, classData.length);
+        }
+        return log;
+
     }
+
+    private byte[] getData(String name) throws ClassNotFoundException {
+        String path =
+                bytecodeFileDirectory + "/" + name + ".class";
+        File file = new File(path);
+        try {
+            FileInputStream in = null;
+            ByteArrayOutputStream out = null;
+            try {
+                in = new FileInputStream(file);
+                out = new ByteArrayOutputStream();
+
+                byte[] buffer = new byte[1024];
+                int size = 0;
+                while ((size = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, size);
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    in.close();
+                } catch (IOException e) {
+
+                    e.printStackTrace();
+                }
+            }
+            return out.toByteArray();
+        } catch (Exception e) {
+            throw new ClassNotFoundException();
+        }
+    }
+
 
     public static void main(String[] args) throws Exception {
         File projectRoot = new File(System.getProperty("basedir", System.getProperty("user.dir")));
