@@ -32,8 +32,7 @@ public class MyClassLoader extends ClassLoader {
         if (file.exists()) {
             try {
                 byte[] bytes = Files.readAllBytes(file.toPath());
-                Class<?> aClass = defineClass(name, bytes, 0, bytes.length);
-                return aClass;
+                return defineClass(name, bytes, 0, bytes.length);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
