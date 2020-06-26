@@ -2,6 +2,7 @@ package com.github.hcsp.classloader;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 
 public class MyClassLoader extends ClassLoader {
@@ -26,16 +27,18 @@ public class MyClassLoader extends ClassLoader {
     // 请思考：双亲委派加载模型在哪儿？为什么我们没有处理？
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
-    protected Class<?> findClass(String name) {
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
         File file = new File(bytecodeFileDirectory, name + ".class");
-
-        try {
-            byte[] bytes = Files.readAllBytes(file.toPath());
-
-            return defineClass(name, bytes, 0, bytes.length);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (file.exists()) {
+            try {
+                byte[] bytes = Files.readAllBytes(file.toPath());
+                Class<?> aClass = defineClass(name, bytes, 0, bytes.length);
+                return aClass;
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
+        throw new ClassNotFoundException(name);
     }
 
     public static void main(String[] args) throws Exception {
