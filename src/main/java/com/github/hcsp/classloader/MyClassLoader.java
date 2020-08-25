@@ -1,6 +1,9 @@
 package com.github.hcsp.classloader;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
@@ -16,7 +19,7 @@ public class MyClassLoader extends ClassLoader {
     // 提示，一般来说，要实现自定义的类加载器，你需要覆盖以下方法，完成：
     //
     // 1.如果类名对应的字节码文件存在，则将它读取成为字节数组
-    //   1.1 调用ClassLoader.defineClass()方法将字节数组转化为Class对象
+    //   1.1 调用defineClass()方法将字节数组转化为Class对象ClassLoader.
     // 2.如果类名对应的字节码文件不存在，则抛出ClassNotFoundException
     //
     // 一个用于测试的字节码文件可以在本项目的根目录找到
@@ -25,6 +28,15 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
+        File file = new File(bytecodeFileDirectory, name + ".class");
+        if (Files.exists(file.toPath())) {
+            try {
+                byte[] bytes = Files.readAllBytes(file.toPath());
+                return defineClass(name, bytes, 0, bytes.length);
+            } catch (IOException e) {
+                throw new RuntimeException();
+            }
+        }
         throw new ClassNotFoundException(name);
     }
 
