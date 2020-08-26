@@ -3,7 +3,6 @@ package com.github.hcsp.classloader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
@@ -34,7 +33,7 @@ public class MyClassLoader extends ClassLoader {
 
     private byte[] loadClassFile(String classFile) throws ClassNotFoundException {
         try {
-            return Files.readAllBytes(Paths.get(classFile));
+            return Files.readAllBytes(new File(classFile).toPath());
         } catch (IOException e) {
             throw new ClassNotFoundException(classFile);
         }
