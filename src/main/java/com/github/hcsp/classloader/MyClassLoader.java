@@ -29,7 +29,7 @@ public class MyClassLoader extends ClassLoader {
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         File file = new File(bytecodeFileDirectory, name + ".class");
-        if(file.exists()){
+        if (file.exists()) {
             byte[] bytes;
             try {
                 bytes = Files.readAllBytes(file.toPath());
@@ -40,7 +40,6 @@ public class MyClassLoader extends ClassLoader {
         }
         throw new ClassNotFoundException(name);
     }
-
 
 
     public static void main(String[] args) throws Exception {
