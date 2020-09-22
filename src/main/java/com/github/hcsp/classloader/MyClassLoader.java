@@ -27,7 +27,7 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        File file = new File(bytecodeFileDirectory + "\\" + name + ".class");
+        File file = new File(bytecodeFileDirectory.getAbsolutePath() + "\\" + name + ".class");
         if (file.exists()) {
             try {
                 byte[] bytes = Files.readAllBytes(file.toPath());
