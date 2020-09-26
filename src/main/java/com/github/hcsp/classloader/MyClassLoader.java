@@ -1,6 +1,8 @@
 package com.github.hcsp.classloader;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
@@ -23,8 +25,17 @@ public class MyClassLoader extends ClassLoader {
     //
     // 请思考：双亲委派加载模型在哪儿？为什么我们没有处理？
     // 扩展阅读：ClassLoader类的Javadoc文档
-    @Override
-    protected Class<?> findClass(String name) throws ClassNotFoundException {
+    @Override protected Class<?> findClass(String name) throws ClassNotFoundException {
+        File classFile = new File(this.bytecodeFileDirectory, name + ".class");
+        if (classFile.exists()) {
+            try {
+                byte[] bytes = Files.readAllBytes(classFile.toPath());
+                return this.defineClass(name, bytes, 0, bytes.length);
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
         throw new ClassNotFoundException(name);
     }
 
