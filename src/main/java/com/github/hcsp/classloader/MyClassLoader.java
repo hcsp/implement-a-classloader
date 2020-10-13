@@ -1,10 +1,6 @@
 package com.github.hcsp.classloader;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
@@ -12,7 +8,6 @@ public class MyClassLoader extends ClassLoader {
 
     public MyClassLoader(File bytecodeFileDirectory) {
         this.bytecodeFileDirectory = bytecodeFileDirectory;
-
     }
 
     // 还记得类加载器是做什么的么？
@@ -27,41 +22,17 @@ public class MyClassLoader extends ClassLoader {
     // 一个用于测试的字节码文件可以在本项目的根目录找到
     //
     // 请思考：双亲委派加载模型在哪儿？为什么我们没有处理？
-    // 在loadClass()里处理了，双亲里没找到，就调用findClass来找
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        byte[] classData = getClassData(name);
-        if (classData == null) {
-            throw new ClassNotFoundException();
-        } else {
-            return defineClass(name, classData, 0, classData.length);
-        }
-    }
-
-    private byte[] getClassData(String className) {
-        String path = bytecodeFileDirectory.toString() + File.separatorChar + className + ".class";
-        try {
-            InputStream ins = new FileInputStream(path);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            int bufferSize = 4096;
-            byte[] buffer = new byte[bufferSize];
-            int bytesNumRead;
-            while ((bytesNumRead = ins.read(buffer)) != -1) {
-                baos.write(buffer, 0, bytesNumRead);
-            }
-            return baos.toByteArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        throw new ClassNotFoundException(name);
     }
 
     public static void main(String[] args) throws Exception {
         File projectRoot = new File(System.getProperty("basedir", System.getProperty("user.dir")));
         MyClassLoader myClassLoader = new MyClassLoader(projectRoot);
 
-        Class<?> testClass = myClassLoader.loadClass("com.github.hcsp.MyTestClass");
+        Class testClass = myClassLoader.loadClass("com.github.hcsp.MyTestClass");
         Object testClassInstance = testClass.getConstructor().newInstance();
         String message = (String) testClass.getMethod("sayHello").invoke(testClassInstance);
         System.out.println(message);
