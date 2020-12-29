@@ -29,11 +29,11 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        Path path = Paths.get(name + ".class");
+        File file = new File(bytecodeFileDirectory, name + ".class");
         byte[] b;
-        if (Files.exists(path)) {
+        if (Files.exists(file.toPath())) {
             try {
-                b = Files.readAllBytes(path);
+                b = Files.readAllBytes(file.toPath());
             } catch (IOException e) {
                 throw new ClassNotFoundException(name);
             }
