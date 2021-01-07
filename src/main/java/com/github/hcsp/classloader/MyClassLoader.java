@@ -1,15 +1,10 @@
 package com.github.hcsp.classloader;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
     private final File bytecodeFileDirectory;
-
-    private final String fileType = ".class";
 
     public MyClassLoader(File bytecodeFileDirectory) {
         this.bytecodeFileDirectory = bytecodeFileDirectory;
@@ -30,28 +25,14 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        //获取class文件的字节数组
-        byte[] bytecode;
-        //查找字节码文件是否存在
-        Path path = Paths.get(name + this.fileType);
-        //读取所有字节码进内存
-        if (Files.exists(path)) {
-            try {
-                bytecode = Files.readAllBytes(path);
-            } catch (IOException e) {
-               throw new ClassNotFoundException();
-            }
-        } else {
-            throw new ClassNotFoundException();
-        }
-        return defineClass(name, bytecode, 0, bytecode.length);
+        throw new ClassNotFoundException(name);
     }
 
     public static void main(String[] args) throws Exception {
         File projectRoot = new File(System.getProperty("basedir", System.getProperty("user.dir")));
         MyClassLoader myClassLoader = new MyClassLoader(projectRoot);
-        Class testClass = myClassLoader.loadClass("com.github.hcsp.MyTestClass");
 
+        Class testClass = myClassLoader.loadClass("com.github.hcsp.MyTestClass");
         Object testClassInstance = testClass.getConstructor().newInstance();
         String message = (String) testClass.getMethod("sayHello").invoke(testClassInstance);
         System.out.println(message);
