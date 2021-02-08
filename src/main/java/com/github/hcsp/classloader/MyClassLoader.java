@@ -27,17 +27,20 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        File file = new File(bytecodeFileDirectory.getPath() + "\\" + name + ".class");
+        File file = new File(bytecodeFileDirectory, name + ".class");
         if (file.exists()) {
+            byte[] b;
             try {
-                byte[] b = Files.readAllBytes(file.toPath());
-                return defineClass(name, b, 0, b.length);
+                b = Files.readAllBytes(file.toPath());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            return defineClass(name, b, 0, b.length);
         } else {
             throw new ClassNotFoundException(name);
         }
+
+
     }
 
     public static void main(String[] args) throws Exception {
