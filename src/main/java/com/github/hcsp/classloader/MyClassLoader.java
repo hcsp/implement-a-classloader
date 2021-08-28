@@ -1,6 +1,12 @@
 package com.github.hcsp.classloader;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
@@ -8,6 +14,19 @@ public class MyClassLoader extends ClassLoader {
 
     public MyClassLoader(File bytecodeFileDirectory) {
         this.bytecodeFileDirectory = bytecodeFileDirectory;
+    }
+
+    private static List<File> getBytecodeFiles(File root) {
+        List<File> result = new ArrayList<>();
+        for (File file : Objects.requireNonNull(root.listFiles())) {
+            if (file.isFile() && file.getName().endsWith(".class")) {
+                result.add(file);
+            }
+            if (file.isDirectory()) {
+                getBytecodeFiles(file);
+            }
+        }
+        return result;
     }
 
     // 还记得类加载器是做什么的么？
@@ -25,7 +44,22 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        throw new ClassNotFoundException(name);
+        List<File> bytecodeFiles = getBytecodeFiles(bytecodeFileDirectory).stream()
+                .filter(file -> file.getName().contains(name))
+                .collect(Collectors.toList());
+        if (bytecodeFiles.size() > 0) {
+            File target = bytecodeFiles.get(0);
+            byte[] bytes;
+            try {
+                bytes = Files.readAllBytes(target.toPath());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return defineClass(name, bytes, 0, bytes.length);
+        } else {
+            throw new ClassNotFoundException(name);
+        }
+
     }
 
     public static void main(String[] args) throws Exception {
