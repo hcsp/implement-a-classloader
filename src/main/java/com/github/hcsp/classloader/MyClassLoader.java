@@ -1,13 +1,23 @@
 package com.github.hcsp.classloader;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
     private final File bytecodeFileDirectory;
 
+    // 所有已加载的 class 文件
+    private final List<File> classFiles;
+
     public MyClassLoader(File bytecodeFileDirectory) {
         this.bytecodeFileDirectory = bytecodeFileDirectory;
+        this.classFiles = getBytecodeFiles(bytecodeFileDirectory);
     }
 
     // 还记得类加载器是做什么的么？
@@ -25,7 +35,44 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        throw new ClassNotFoundException(name);
+        byte[] bytes = new byte[0];
+        try {
+            bytes = loadClassData(name);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return defineClass(name, bytes, 0, bytes.length);
+    }
+
+    private byte[] loadClassData(String name) throws ClassNotFoundException, IOException {
+        File classFile = convertClassFile(name);
+        if (classFiles.contains(classFile)) {
+            return Files.readAllBytes(classFile.toPath());
+        }
+        throw new ClassNotFoundException();
+    }
+
+    private File convertClassFile(String name) {
+        name = bytecodeFileDirectory + File.separator + name + ".class";
+        return new File(name);
+    }
+
+    private List<File> getBytecodeFiles(File bytecodeFileDirectory) {
+        List<File> classFiles = Collections.synchronizedList(new ArrayList<>());
+        for (File file : Objects.requireNonNull(bytecodeFileDirectory.listFiles())) {
+            if (isBytecodeFile(file)) {
+                classFiles.add(file);
+            }
+
+            if (file.isDirectory()) {
+                classFiles.addAll(getBytecodeFiles(file));
+            }
+        }
+        return classFiles;
+    }
+
+    private boolean isBytecodeFile(File file) {
+        return file.exists() && file.isFile() && file.getName().endsWith(".class");
     }
 
     public static void main(String[] args) throws Exception {
