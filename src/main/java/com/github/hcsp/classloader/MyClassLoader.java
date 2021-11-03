@@ -1,6 +1,8 @@
 package com.github.hcsp.classloader;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
@@ -25,14 +27,27 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        throw new ClassNotFoundException(name);
+        File file = new File(this.bytecodeFileDirectory, name + ".class");
+        Class<?> aClass = null;
+        if (file.exists()) {
+            byte[] bs;
+            try {
+                bs = Files.readAllBytes(file.toPath());
+                aClass = defineClass(name, Files.readAllBytes(file.toPath()), 0, bs.length);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            throw new ClassNotFoundException(name);
+        }
+        return aClass;
     }
 
     public static void main(String[] args) throws Exception {
         File projectRoot = new File(System.getProperty("basedir", System.getProperty("user.dir")));
         MyClassLoader myClassLoader = new MyClassLoader(projectRoot);
 
-        Class testClass = myClassLoader.loadClass("com.github.hcsp.MyTestClass");
+        Class<?> testClass = myClassLoader.loadClass("com.github.hcsp.MyTestClass");
         Object testClassInstance = testClass.getConstructor().newInstance();
         String message = (String) testClass.getMethod("sayHello").invoke(testClassInstance);
         System.out.println(message);
