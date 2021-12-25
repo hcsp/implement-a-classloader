@@ -25,12 +25,13 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
+        byte[] classBytes;
         try {
-            byte[] classBytes = getBytes(name);
-            return defineClass(name, classBytes, 0, classBytes.length);
+            classBytes = getBytes(name);
         } catch (IOException e) {
             throw new ClassNotFoundException(name);
         }
+        return defineClass(name, classBytes, 0, classBytes.length);
     }
 
     private byte[] getBytes(String name) throws IOException {
