@@ -28,7 +28,7 @@ public class MyClassLoader extends ClassLoader {
         try {
             byte[] classBytes = getBytes(name);
             return defineClass(name, classBytes, 0, classBytes.length);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new ClassNotFoundException(name);
         }
     }
