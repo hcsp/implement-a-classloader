@@ -1,7 +1,6 @@
 package com.github.hcsp.classloader;
 
-import java.io.*;
-import java.nio.file.Files;
+import java.io.File;
 
 public class MyClassLoader extends ClassLoader {
     // 存放字节码文件的目录
@@ -26,12 +25,7 @@ public class MyClassLoader extends ClassLoader {
     // 扩展阅读：ClassLoader类的Javadoc文档
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        try {
-            byte[] bytes = Files.readAllBytes(new File(bytecodeFileDirectory, name + ".class").toPath());
-            return defineClass(name, bytes, 0, bytes.length);
-        } catch (IOException e) {
-            throw new ClassNotFoundException(name);
-        }
+        throw new ClassNotFoundException(name);
     }
 
     public static void main(String[] args) throws Exception {
