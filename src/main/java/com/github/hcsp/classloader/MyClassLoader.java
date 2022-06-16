@@ -31,7 +31,7 @@ public class MyClassLoader extends ClassLoader {
         try {
             classData = loadClassData(name);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ClassNotFoundException(name);
         }
 
         return defineClass(name, classData, 0, classData.length);
