@@ -39,7 +39,7 @@ public class MyClassLoader extends ClassLoader {
     }
 
     private byte[] loadClassData(String name) throws IOException {
-        return Files.readAllBytes(new File(bytecodeFileDirectory,name + ".class").toPath());
+        return Files.readAllBytes(new File(bytecodeFileDirectory, name + ".class").toPath());
     }
 
     public static void main(String[] args) throws Exception {
