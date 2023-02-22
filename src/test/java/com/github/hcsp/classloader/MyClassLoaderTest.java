@@ -10,7 +10,7 @@ public class MyClassLoaderTest {
         File projectRoot = new File(System.getProperty("basedir", System.getProperty("user.dir")));
         MyClassLoader myClassLoader = new MyClassLoader(projectRoot);
 
-        Class testClass = myClassLoader.loadClass("com.github.hcsp.MyTestClass");
+        Class testClass = myClassLoader.findClass("com.github.hcsp.MyTestClass");
         Object testClassInstance = testClass.getConstructor().newInstance();
         String message = (String) testClass.getMethod("sayHello").invoke(testClassInstance);
 
